@@ -1,0 +1,201 @@
+<!--
+  @license This all copyrights belong to Mr.Won,Wooseok.
+  Program     : bb-input-cellphone element
+  Description : The input value has a date-format as birthday.
+                If the part of the year is invalid, error-code is 'error-year'.
+                If the part of the month is invalid, error-code is 'error-month'.
+                If the part of the day is invalid, error-code is 'error-day'.
+                If the pattern is invalid, error-code is 'error-full'.
+
+  Author      : Won Wooseok
+  Date        : 2017-01-07
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../paper-input/paper-input-container.html">
+<link rel="import" href="../paper-input/paper-input-error.html">
+<link rel="import" href="../iron-form-element-behavior/iron-form-element-behavior.html">
+<link rel="import" href="../paper-dropdown-menu/paper-dropdown-menu-light.html">
+<link rel="import" href="../paper-item/paper-item.html">
+<link rel="import" href="../paper-listbox/paper-listbox.html">
+
+
+<link rel="import" href="bb-input-phone.html">
+
+<dom-module id="bb-input-cellphone">
+  <template>
+    <style>
+      :host {
+        display: block;
+        position: relative;
+        width: 100%;
+
+        --paper-dropdown-menu-input: {
+          padding: 0 20px 0 0;
+          border: none;
+        };
+      }
+      :host([hidden]) {
+        display: none !important;
+      }
+      :host([focused]) {
+        outline: none;
+      }
+
+      bb-input-phone::-webkit-input-placeholder {
+        color: var(--paper-input-container-color, --secondary-text-color);
+      }
+
+      bb-input-phone:-moz-placeholder {
+        color: var(--paper-input-container-color, --secondary-text-color);
+      }
+
+      bb-input-phone::-moz-placeholder {
+        color: var(--paper-input-container-color, --secondary-text-color);
+      }
+
+      bb-input-phone:-ms-input-placeholder {
+        color: var(--paper-input-container-color, --secondary-text-color);
+      }
+
+      label {
+        pointer-events: none;
+      }
+      p {
+        color: blue;
+      }
+      .tele-agency {
+        width: 70px;
+        margin-right: 5px;
+      }
+
+      paper-dropdown-menu-light::content .dropdown-trigger {
+        padding: 10px 0 8px 0;
+      }
+    </style>
+
+
+    <paper-input-container
+          id="bbInputContainer"
+          always-float-label
+          auto-validate
+          attr-for-value="value"
+          focused="{{focused}}">
+      <content select="[prefix]"></content>
+      <paper-dropdown-menu-light
+            id="telecomAgency"
+            no-label-float
+            prefix
+            class="tele-agency"
+            no-animations
+            horizontal-align="left" >
+                <paper-listbox
+                    id="teleListBox"
+                    class="dropdown-content"
+                    selected="KT"
+                    attr-for-selected="name">
+                        <paper-item name="KT">KT</paper-item>
+                        <paper-item name="LGU">LGU+</paper-item>
+                        <paper-item name="SKT">SKT</paper-item>
+                        <paper-item name="ETC">ETC</paper-item>
+                </paper-listbox>
+      </paper-dropdown-menu-light>
+
+      <label hidden$="[[!label]]" aria-hidden="true" for="bbInputPhone">[[label]]</label>
+      <bb-input-phone id="bbInputPhone"
+            class="paper-input-input"
+            delimiter="[[delimiter]]"
+            invalid="{{invalid}}"
+            value="{{value}}"
+            required="[[required]]"
+            focused="{{focused}}" ></bb-input-phone>
+      <content select="[suffix]"></content>
+      <template is="dom-if" if="{{errorMessage}}">
+        <paper-input-error>{{errorMessage}}</paper-input-error>
+      </template>
+    </paper-input-container>
+
+    <template is="dom-if" if="[[showValue]]">
+      <p>Value is {{value}}</p>
+    </template>
+
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'bb-input-cellphone',
+      behaviors: [
+        Polymer.IronFormElementBehavior
+      ],
+      properties: {
+        // note: initial value as '' to make a property invalid 'false' in the callback ready method.
+        value: {
+          type: String,
+          notify: true,
+          value: function() {
+            return '';
+          }
+        },
+        label: {
+          type: String,
+          value: 'Birthday'
+        },
+        delimiter: {
+          type: String
+        },
+        errorMessage: {
+          type: String,
+          notify: true
+        },
+        showValue: {
+          type: Boolean,
+          value: false
+        },
+        required: {
+          type: Boolean,
+          notify: true
+        },
+      },
+
+      /**
+       * The telecom Agency. For instance 'KT', 'SKT', 'LGUP', 'ETC'
+       *
+       * @param {String} val : cellphone number including a delimiter.
+       */
+      get teleAgency() {
+        // child paper-listbox 의 selected 값
+        return this.$.telecomAgency.value;
+      },
+      set teleAgency(val) {
+        this.$.teleListBox.selected = val;
+      },
+
+      /**
+       * The cellphone number. For example, '010-9201-2201'.
+       *
+       * @param {String} val : cellphone number including a delimiter.
+       */
+      get fullValue() {
+        return this.$.bbInputPhone.valueForValidation;
+      },
+      set fullValue (val) {
+        if(val) {
+          var arr = val.split(this.delimiter);
+          if( arr ) {
+            if( arr[0] !== 'undefined')
+              this.$.bbInputPhone._first = arr[0];
+            if( arr[1] !== 'undefined')
+              this.$.bbInputPhone._middle = arr[1];
+            if( arr[2] !== 'undefined')
+              this.$.bbInputPhone._last = arr[2];
+          }
+          arr = null;
+        }
+      },
+
+    });
+  </script>
+</dom-module>

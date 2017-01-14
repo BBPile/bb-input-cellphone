@@ -1,0 +1,286 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../iron-validatable-behavior/iron-validatable-behavior.html">
+<link rel="import" href="../paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../paper-item/paper-item.html">
+<link rel="import" href="../paper-listbox/paper-listbox.html">
+<link rel="import" href="../paper-styles/typography.html">
+<link rel="import" href="bb-input-validator-ko.html">
+
+<dom-module id="bb-input-phone">
+  <template>
+    <style>
+      :host {
+          display: inline-block;
+          position: absolute;
+      }
+      :host([hidden]) {
+          display: none !important;
+      }
+      label.input-label {
+          position: absolute;
+          top: 0;
+          right: 0;
+          left: 0;
+          width: 100%;
+          font: inherit;
+          color: var(--paper-input-container-color, --secondary-text-color);
+          -webkit-transition: -webkit-transform 0.25s, width 0.25s;
+          transition: transform 0.25s, width 0.25s;
+          -webkit-transform-origin: left top;
+          transform-origin: left top;
+
+          @apply(--paper-font-common-nowrap);
+          @apply(--paper-font-subhead);
+          @apply(--paper-input-container-label);
+          @apply(--paper-transition-easing);
+       }
+       label.input-label.label-is-floating {
+         	position: absolute;
+         	-webkit-transform: translateY(-75%) scale(0.0);
+          transform: translateY(-75%) scale(0.0);
+
+          /* Since we scale to 75/100 of the size, we actually have 100/75 of the
+          original space now available  */
+          width: 133%;
+          @apply(--paper-input-container-label-floating);
+       }
+       input[is="iron-input"] {
+           position: relative; /* to make a stacking context */
+           outline: none;
+           box-shadow: none;
+           padding: 0;
+           width: 100%;
+           max-width: 100%;
+           background: transparent;
+           border: none;
+           color: var(--paper-input-container-input-color, --primary-text-color);
+           -webkit-appearance: none;
+           text-align: left;
+           vertical-align: bottom;
+           padding-left: 2px;
+           @apply(--paper-font-subhead);
+           @apply(--paper-input-container-input);
+       }
+
+      .container {
+        @apply(--layout-horizontal);
+
+      }
+      .tele-agency-container {
+        display: inline-block;
+        position: relative;
+        @apply(--layout-horizontal);
+        @apply(--layout-flex-2);
+      }
+      .first-input-container {
+        display: inline-block;
+        position: relative;
+        @apply(--layout-horizontal);
+        @apply(--layout-flex);
+      }
+      .middle-input-container {
+        display: inline-block;
+        position: relative;
+        @apply(--layout-horizontal);
+        @apply(--layout-flex);
+      }
+      .last-input-container {
+        display: inline-block;
+        position: relative;
+        @apply(--layout-horizontal);
+        @apply(--layout-flex);
+      }
+
+    </style>
+    <bb-input-validator-ko
+              delimiter="[[delimiter]]"
+              value-for-validation="[[valueForValidation]]"></bb-input-validator-ko>
+    <div class="container">
+      <!-- <div class="tele-agency-container">
+          <paper-dropdown-menu
+                no-label-float unfocused>
+                    <paper-listbox id="inputTelecom" class="dropdown-content" selected="KT" attr-for-selected="name">
+                      <paper-item name="KT">KT</paper-item>
+                      <paper-item name="LGU">LGU+</paper-item>
+                      <paper-item name="SKT">SKT</paper-item>
+                      <paper-item name="ETC">기타</paper-item>
+                    </paper-listbox>
+          </paper-dropdown-menu>
+      </div> -->
+      <div class="first-input-container">
+          <label class$="[[_computedLabelClass(_first)]]" for="firstInput">000</label>
+          <input is="iron-input"
+                  id="firstInput"
+                  maxlength="3"
+                  bind-value="{{_first}}"
+                  size="3"
+                  prevent-invalid-input
+                  allowed-pattern="[0-9]"
+                  invalid="{{invalid}}">
+                    [[delimiter]]
+                  </input>
+      </div>
+      <div class="middle-input-container">
+          <label class$="[[_computedLabelClass(_middle)]]" for="middleInput">0000</label>
+          <input is="iron-input"
+                  id="middleInput"
+                  maxlength="4"
+                  bind-value="{{_middle}}"
+                  size="4"
+                  prevent-invalid-input
+                  allowed-pattern="[0-9]"
+                  invalid="{{invalid}}">
+                    [[delimiter]]</input>
+      </div>
+      <div class="last-input-container">
+          <label class$="[[_computedLabelClass(_last)]]" for="lastInput">0000</label>
+          <input is="iron-input"
+                  id="lastInput"
+                  maxlength="4"
+                  bind-value="{{_last}}"
+                  size="4"
+                  allowed-pattern="[0-9]"
+                  invalid="{{invalid}}">
+          </input>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'bb-input-phone',
+      behaviors: [
+        Polymer.IronValidatableBehavior
+      ],
+      properties: {
+        value: {
+          notify: true,
+          type: String
+        },
+        valueForValidation: {
+          type: String,
+          notify: true,
+          readOnly: true
+        },
+        _first: {
+          type: String,
+          notify: true
+        },
+        _middle: {
+          type: String,
+          notify: true
+        },
+        _last: {
+          type: String,
+          notify: true
+        },
+        validator: {
+          type: String,
+          value: 'bb-input-validator-ko'
+        },
+        //
+        delimiter: {
+          type: String,
+          value: '-'
+        },
+        limitAge: {
+          type: Number,
+          value: 0
+        },
+        required: {
+          type: Boolean
+        },
+        _validator: {
+          type: Object,
+          computed: '__computeValidator(validator)'
+        },
+        teleAgencyLabel: {
+          type: String,
+          value: 'TeleAgency'
+        }
+      },
+      observers: [
+        '_computedInputValue(_first,_middle,_last)'
+      ],
+
+      /**
+       * Making both property valueForValidation and value
+       * for used in custom validator.
+       *
+       * @param {String} first corresponds to the property _first.
+       * @param {String} middle corresponds to the property _middle.
+       * @param {String} last corresponds to the property _last.
+       */
+      _computedInputValue: function(first, middle, last) {
+
+        var first_t = first.trim();
+        var middle_t = middle.trim();
+        var last_t = last.trim();
+
+        // Including with the delimiter makes it easy to be validated in validator
+        this._setValueForValidation( first_t + this.delimiter + middle_t + this.delimiter + last_t );
+
+        // this value without the delimiter is being handled in the element named 'paper-input-container'
+        // triger validate method
+        this.value = first_t + middle_t + last_t;
+      },
+
+      /**
+       * Adding a class-name to the classList of the label
+       * to make a label floating or nofloating.
+       *
+       * @param {Boolean} _inputHasContent True if the input-value exists,
+       */
+      _computedLabelClass: function(_inputHasContent) {
+          var cls = 'input-label';
+          if (_inputHasContent) {
+            cls += ' label-is-floating';
+          }
+          return cls;
+      },
+      /**
+       * @return {boolean} True if the validator `validator` exists.
+       */
+      hasValidator: function() {
+        return this._validator != null;
+      },
+      /**
+       * Returns true if the `value` is valid, and updates `invalid`. If you want
+       * your element to have custom validation logic, do not override this method;
+       * override `_getValidity(value)` instead.
+
+       * @param {Object} value The value to be validated. By default, it is passed
+       * to the validator's `validate()` function, if a validator is set.
+       * @return {boolean} True if `value` is valid.
+       */
+      validate: function(value) {
+        this.invalid = !this._getValidity(value);
+        return !this.invalid;
+      },
+
+      /**
+       * Returns true if `value` is valid.  By default, it is passed
+       * to the validator's `validate()` function, if a validator is set. You
+       * should override this method if you want to implement custom validity
+       * logic for your element.
+       *
+       * @param {Object} value The value to be validated.
+       * @return {boolean} True if `value` is valid.
+       */
+
+      _getValidity: function(value) {
+        if (this.hasValidator()) {
+          return this._validator.validate(value);
+        }
+        return true;
+      },
+      __computeValidator: function() {
+        return Polymer.IronValidatableBehaviorMeta &&
+            Polymer.IronValidatableBehaviorMeta.byKey(this.validator);
+      }
+
+    });
+  </script>
+</dom-module>

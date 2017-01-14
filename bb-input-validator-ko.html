@@ -1,0 +1,65 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-validator-behavior/iron-validator-behavior.html">
+
+<script>
+  Polymer({
+    is: 'bb-input-validator-ko',
+
+    behaviors: [
+      Polymer.IronValidatorBehavior
+    ],
+    properties: {
+      delimiter: {
+        type: String,
+        value: '-'
+      },
+      valueForValidation: {
+        type: String
+      }
+    },
+    // validate the value and its date-format for birthday.
+    validate: function(value) {
+
+      var valid = false;
+
+
+      if (value && this.valueForValidation) {
+          var arr = this.valueForValidation.split(this.delimiter);
+
+          for (var i=0, len=arr.length; i<len; i++) {
+            if(i==0 ) {
+              // '01X'
+              var regexp = new RegExp(/01[0|1|6|7|8|9]/);
+              valid = regexp.test( arr[i] ) ? true: false;
+              this.message = !valid ? 'error-first' : '';
+              regexp = null;
+            } else if (valid && i == 1 ) {
+              // if 010 is 4 digits, else 3,or 4 digits.
+              var pattern = /\d{3,4}/;
+              if (arr[0] == '010') {
+                pattern = /\d{4}/;
+              }
+              var regexp = new RegExp(pattern);
+              valid = regexp.test( arr[i] ) ? true: false;
+              this.message = !valid ? 'error-middle' : '';
+              regexp = null;
+            } else if (valid && i == 2 ) {
+              var regexp = new RegExp(/\d{4}/);
+              valid = regexp.test( arr[i] ) ? true: false;
+              this.message = !valid ? 'error-last' : '';
+              regexp = null;
+            }
+          }
+
+          // announce error-message
+          if (!valid) {
+            this.fire('bb-input-cellphone-error-message', {code: this.message});
+            arr = null;
+            return valid;
+          }
+          arr = null;
+      }
+      return valid;
+    }
+  });
+</script>

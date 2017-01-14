@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+  <head>
+    <title>bb-input-cellphone demo</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+    <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+    <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+
+    <link rel="import" href="../bb-input-cellphone.html">
+    <link rel="import" href="../../paper-icon-button/paper-icon-button.html">
+    <link rel="import" href="../../iron-flex-layout/iron-flex-layout.html">
+    <link rel="import" href="../../iron-icons/iron-icons.html">
+    <link rel="import" href="../../iron-icons/hardware-icons.html">
+
+    <style is="custom-style" include="demo-pages-shared-styles">
+    </style>
+  </head>
+  <body>
+
+    <div class="vertical-section-container centered">
+      <h3>Basic bb-input-cellphone Demo</h3>
+      <demo-snippet>
+        <template>
+          <div class="card" >
+
+              <form id="thisform" >
+                <bb-input-cellphone
+                      id="inputCellphone"
+                      label="Kor Cellphone"
+                      delimiter="-"
+                      show-value
+                      required
+                      >
+                      <iron-icon prefix icon="hardware:phone-android" ></iron-icon>
+                      <paper-icon-button class="clear" suffix icon="icons:clear" onclick="_clearInput(this)" alt="clear" title="clear" ></paper-icon-button>
+                </bb-input-cellphone>
+                <button type="button" id="button" onclick="clickMe()">Set phone-num</button>
+              </form>
+              <button type="button" id="button" onclick="loadEvent()">Show error-message</button>
+              <button type="button" id="button" onclick="getFullValue()">Show full-value</button>
+          </div>
+        </template>
+      </demo-snippet>
+    </div>
+
+    <script>
+        function loadEvent() {
+          document.getElementById('inputCellphone')
+          .addEventListener('bb-input-cellphone-error-message',function (e) {
+            var msg = '';
+            console.log(e.detail.code); // true
+
+            if(e.detail.code == 'error-first'){
+              msg= 'First num is incorrect';
+            }
+            else if(e.detail.code == 'error-middle'){
+              msg= 'Middle num is incorrect';
+            }
+            else if(e.detail.code == 'error-last'){
+              msg= 'Last num is incorrect';
+            }
+            document.getElementById('inputCellphone').setAttribute('error-message',msg);
+          });
+        }
+
+        function clickMe() {
+          document.getElementById('inputCellphone').teleAgency = 'SKT';
+          document.getElementById('inputCellphone').fullValue = '010-9207-8202';
+
+        }
+
+        function getFullValue() {
+
+          console.log(document.getElementById('inputCellphone').teleAgency) ;
+          console.log(document.getElementById('inputCellphone').fullValue) ;
+
+        }
+
+        function _clearInput(e){
+            document.getElementById('inputCellphone').fullValue = '--';
+
+        }
+
+    </script>
+  </body>
+</html>
